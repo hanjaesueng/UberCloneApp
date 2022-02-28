@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class SignUpController : UIViewController {
     
@@ -48,7 +49,7 @@ class SignUpController : UIViewController {
     }()
     
     private let fullNameTextField : UITextField = {
-        return UITextField().textField(withPlaceholer: "Fullname", isSecureTextEntry: true)
+        return UITextField().textField(withPlaceholer: "Fullname", isSecureTextEntry: false)
     }()
 
     private lazy var accountTypeContainerView : UIView = {
@@ -69,6 +70,7 @@ class SignUpController : UIViewController {
         let btn = AuthButton(type: .system)
         btn.setTitle("Sign Up", for: .normal)
         btn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        btn.addTarget(self, action: #selector(handleSignUp), for: .touchUpInside)
         return btn
     }()
     
@@ -77,7 +79,7 @@ class SignUpController : UIViewController {
         let attributedTitle = NSMutableAttributedString(string: "Already have an account? ", attributes: [.font : UIFont.systemFont(ofSize: 16),.foregroundColor:UIColor.lightGray])
         
         attributedTitle.append(NSAttributedString(string: "Sign Up", attributes: [.font:UIFont.boldSystemFont(ofSize: 16),.foregroundColor:UIColor.mainBlueTint]))
-        btn.addTarget(self, action: #selector(handleShowSignUp), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(handleDismissSignUp), for: .touchUpInside)
         btn.setAttributedTitle(attributedTitle, for: .normal)
         return btn
     }()
@@ -91,7 +93,37 @@ class SignUpController : UIViewController {
     
     // MARK: - selectors
     
-    @objc func handleShowSignUp(){
+    @objc func handleSignUp(){
+        guard let email = emailTextField.text else {return}
+        guard let password = passwordTextField.text else {return}
+        guard let fullname = fullNameTextField.text else {return}
+        let accountTypeIndex = accountTypeSegmentedControl.selectedSegmentIndex
+        
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Failed to register user with error \(error)")
+                return
+            }
+            
+            guard let uid = result?.user.uid else {return}
+            let values = ["email":email,
+                          "fullname":fullname,
+                          "accountType":accountTypeIndex] as [String:Any]
+            Database.database().reference().child("users").child(uid).updateChildValues(values) {[weak self] error, ref in
+                guard let self = self else {return}
+                guard error == nil else {
+                    print("Failed register user data")
+                    return
+                }
+                
+                guard let controller = UIApplication.shared.keyWindow?.rootViewController as? HomeController else {return}
+                controller.configureUI()
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+    
+    @objc func handleDismissSignUp(){
         navigationController?.popViewController(animated: true)
     }
     
