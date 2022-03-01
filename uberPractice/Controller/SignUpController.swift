@@ -7,10 +7,14 @@
 
 import UIKit
 import Firebase
+import GeoFire
 
 class SignUpController : UIViewController {
     
     // MARK: - properties
+    
+    private var location = LocationHandler.shared.locationManager.location
+    
     
     private let titleLabel : UILabel = {
         let label = UILabel()
@@ -89,6 +93,10 @@ class SignUpController : UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        
+       
+        
+        print("DEBUG: \(location)")
     }
     
     // MARK: - selectors
@@ -99,27 +107,29 @@ class SignUpController : UIViewController {
         guard let fullname = fullNameTextField.text else {return}
         let accountTypeIndex = accountTypeSegmentedControl.selectedSegmentIndex
         
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+        Auth.auth().createUser(withEmail: email, password: password) {[weak self] result, error in
+            guard let self = self else {return}
             if let error = error {
                 print("Failed to register user with error \(error)")
                 return
             }
             
             guard let uid = result?.user.uid else {return}
+            
             let values = ["email":email,
                           "fullname":fullname,
                           "accountType":accountTypeIndex] as [String:Any]
-            Database.database().reference().child("users").child(uid).updateChildValues(values) {[weak self] error, ref in
-                guard let self = self else {return}
-                guard error == nil else {
-                    print("Failed register user data")
-                    return
-                }
+            
+            if accountTypeIndex == 1 {
+                let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+                guard let location = self.location else {return}
                 
-                guard let controller = UIApplication.shared.keyWindow?.rootViewController as? HomeController else {return}
-                controller.configureUI()
-                self.dismiss(animated: true, completion: nil)
+                geofire.setLocation(location, forKey: uid) { error in
+                    self.uploadUserDataAndShowHomeController(uid: uid, values: values)
+                }
             }
+            
+            self.uploadUserDataAndShowHomeController(uid: uid, values: values)
         }
     }
     
@@ -128,6 +138,20 @@ class SignUpController : UIViewController {
     }
     
     // MARK: - Helper Function
+    
+    func uploadUserDataAndShowHomeController(uid : String, values : [String:Any]){
+        REF_USERS.child(uid).updateChildValues(values) {[weak self] error, ref in
+            guard let self = self else {return}
+            guard error == nil else {
+                print("Failed register user data")
+                return
+            }
+            
+            guard let controller = UIApplication.shared.keyWindow?.rootViewController as? HomeController else {return}
+            controller.configureUI()
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
     
     func configureUI(){
         

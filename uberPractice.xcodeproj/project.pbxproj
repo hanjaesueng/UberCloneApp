@@ -24,6 +24,7 @@
 		DBD9E92E27CDD70F0091C527 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD9E92D27CDD70F0091C527 /* LocationCell.swift */; };
 		DBD9E93027CE1CF70091C527 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD9E92F27CE1CF70091C527 /* Service.swift */; };
 		DBD9E93227CE398E0091C527 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD9E93127CE398E0091C527 /* User.swift */; };
+		DBD9E93427CE3E9C0091C527 /* LocationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD9E93327CE3E9C0091C527 /* LocationHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		DBD9E92D27CDD70F0091C527 /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
 		DBD9E92F27CE1CF70091C527 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		DBD9E93127CE398E0091C527 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		DBD9E93327CE3E9C0091C527 /* LocationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHandler.swift; sourceTree = "<group>"; };
 		DF8B82D12028F3EEDA337A5D /* Pods_uberPractice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uberPractice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -157,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				DBD3925527CCA29D00BD2EAD /* Extensions.swift */,
+				DBD9E93327CE3E9C0091C527 /* LocationHandler.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -284,6 +287,7 @@
 				DBD3925427CC98B700BD2EAD /* LoginController.swift in Sources */,
 				DBD3923D27CC977A00BD2EAD /* SceneDelegate.swift in Sources */,
 				DBD9E92E27CDD70F0091C527 /* LocationCell.swift in Sources */,
+				DBD9E93427CE3E9C0091C527 /* LocationHandler.swift in Sources */,
 				DBD3925627CCA29D00BD2EAD /* Extensions.swift in Sources */,
 				DBD9E93227CE398E0091C527 /* User.swift in Sources */,
 				DBD9E93027CE1CF70091C527 /* Service.swift in Sources */,
