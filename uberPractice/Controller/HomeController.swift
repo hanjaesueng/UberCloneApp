@@ -10,6 +10,7 @@ import Firebase
 import MapKit
 
 private let reuseIdentifier = "LocationCell"
+private let annotationIdentifire = "DriverAnno"
 
 class HomeController : UIViewController {
     
@@ -44,7 +45,8 @@ class HomeController : UIViewController {
     
     
     func fetchUserData(){
-        Service.shared.fetchUserdata {[weak self] user in
+        guard let currentUid = Auth.auth().currentUser?.uid else {return}
+        Service.shared.fetchUserdata(uid:currentUid) {[weak self] user in
             guard let self = self else {return}
             self.user = user
         }
@@ -52,7 +54,24 @@ class HomeController : UIViewController {
     
     func fetchDrivers(){
         guard let location = locationManager?.location else {return}
-        Service.shared.fetchDrivers(location: location)
+        Service.shared.fetchDrivers(location: location, completion: { driver in
+            guard let coordinate = driver.location?.coordinate else {return}
+            let annotation = DriverAnnotation(uid: driver.uid, coordinate: coordinate)
+            var driverIsVisible : Bool {
+                return self.mapView.annotations.contains { annotation -> Bool in
+                    guard let driverAnno = annotation as? DriverAnnotation else {return false}
+                    if driverAnno.uid == driver.uid {
+                        driverAnno.updateAnnotationPosition(with: coordinate)
+                        return true
+                    }
+                    return false
+                }
+            }
+            if !driverIsVisible {
+                self.mapView.addAnnotation(annotation)
+            } 
+            
+        })
     }
     
     func checkIFUserIsLoggedIn() {
@@ -109,6 +128,7 @@ class HomeController : UIViewController {
         
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
+        mapView.delegate = self
     }
     
     func configureLocationInputView() {
@@ -224,4 +244,17 @@ extension HomeController : UITableViewDelegate,UITableViewDataSource {
         return cell
     }
     
+}
+
+//MARK: - MKMapViewDelegate
+
+extension HomeController : MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if let annotaion = annotation as? DriverAnnotation {
+            let view = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationIdentifire)
+            view.image = UIImage(named: "chevron-sign-to-right")
+            return view
+        }
+        return nil
+    }
 }
