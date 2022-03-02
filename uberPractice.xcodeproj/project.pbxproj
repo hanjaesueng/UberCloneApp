@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		107B869C907139FE63219EE0 /* Pods_uberPractice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF8B82D12028F3EEDA337A5D /* Pods_uberPractice.framework */; };
+		38DB177427CECA40009C2B0C /* DriverAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38DB177327CECA40009C2B0C /* DriverAnnotation.swift */; };
 		DBD3923B27CC977A00BD2EAD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD3923A27CC977A00BD2EAD /* AppDelegate.swift */; };
 		DBD3923D27CC977A00BD2EAD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD3923C27CC977A00BD2EAD /* SceneDelegate.swift */; };
 		DBD3924227CC977B00BD2EAD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBD3924027CC977B00BD2EAD /* Main.storyboard */; };
@@ -29,6 +30,7 @@
 
 /* Begin PBXFileReference section */
 		11B77ABC4960960F95D1C996 /* Pods-uberPractice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uberPractice.release.xcconfig"; path = "Target Support Files/Pods-uberPractice/Pods-uberPractice.release.xcconfig"; sourceTree = "<group>"; };
+		38DB177327CECA40009C2B0C /* DriverAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverAnnotation.swift; sourceTree = "<group>"; };
 		7DBBFDE4CFA657B0F1087223 /* Pods-uberPractice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uberPractice.debug.xcconfig"; path = "Target Support Files/Pods-uberPractice/Pods-uberPractice.debug.xcconfig"; sourceTree = "<group>"; };
 		DBD3923727CC977A00BD2EAD /* uberPractice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uberPractice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBD3923A27CC977A00BD2EAD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				DBD9E93127CE398E0091C527 /* User.swift */,
+				38DB177327CECA40009C2B0C /* DriverAnnotation.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -284,6 +287,7 @@
 				DBD3925C27CCCF9300BD2EAD /* AuthButton.swift in Sources */,
 				DBD3926027CD127700BD2EAD /* HomeController.swift in Sources */,
 				DBD9E92C27CDCAD10091C527 /* LocationInputView.swift in Sources */,
+				38DB177427CECA40009C2B0C /* DriverAnnotation.swift in Sources */,
 				DBD3925427CC98B700BD2EAD /* LoginController.swift in Sources */,
 				DBD3923D27CC977A00BD2EAD /* SceneDelegate.swift in Sources */,
 				DBD9E92E27CDD70F0091C527 /* LocationCell.swift in Sources */,
