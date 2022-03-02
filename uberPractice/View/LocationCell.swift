@@ -6,10 +6,18 @@
 //
 
 import UIKit
+import MapKit
 
 class LocationCell: UITableViewCell {
 
     // MARK: - Properties
+    
+    var placemark : MKPlacemark? {
+        didSet {
+            titleLable.text = placemark?.name
+            addressLabel.text = placemark?.address
+        }
+    }
     
     private let titleLable : UILabel = {
         let label = UILabel()
