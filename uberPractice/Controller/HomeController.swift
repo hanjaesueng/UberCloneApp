@@ -217,6 +217,7 @@ class HomeController : UIViewController {
         view.addSubview(rideActionView)
        
         rideActionView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: rideActionViewHeight)
+        rideActionView.delegate = self
     }
     
     func configuteTableView(){
@@ -359,6 +360,7 @@ extension HomeController :LocationInputViewDelegate {
             guard let self = self else {return}
             self.searchResults = placemarks
             self.tableView.reloadData()
+            
         }
     }
     
@@ -378,7 +380,7 @@ extension HomeController :LocationInputViewDelegate {
 
 extension HomeController : MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        if let annotaion = annotation as? DriverAnnotation {
+        if annotation.isKind(of: DriverAnnotation.self)  {
             let view = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationIdentifire)
             view.image = UIImage(named: "chevron-sign-to-right")
             return view
@@ -413,11 +415,13 @@ extension HomeController : UITableViewDelegate,UITableViewDataSource {
         return section == 0 ? 2 : searchResults.count
     }
     
+    // tableView를 쓸때는 설정을 다 해줘야한다 resue하기때문에 다른 cell의 속성이 발현된다. collectionView도 마찬가지
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! LocationCell
         if indexPath.section == 1 {
-            
             cell.placemark = searchResults[indexPath.row]
+        } else {
+            cell.placemark = nil
         }
         return cell
     }
@@ -447,3 +451,17 @@ extension HomeController : UITableViewDelegate,UITableViewDataSource {
     }
 }
 
+// MARK: - RideActionViewDelegate
+extension HomeController : RideActionViewDelegate {
+    func uploadTrip(_ view : RideActionView) {
+        guard let pickupCoords = locationManager?.location?.coordinate else {return}
+        guard let destinationCoords = view.destination?.coordinate else {return}
+        Service.shared.uploadTrip(pickupCoords, destinationCoords) { error, reference in
+            guard error == nil else {
+                print("DEBUG:Failed to upload trip with error : \(error)")
+                return
+            }
+            print("DEBUG:Did upload trip")
+        }
+    }
+}
