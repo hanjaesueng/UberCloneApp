@@ -22,3 +22,4 @@ class DriverAnnotation : NSObject, MKAnnotation {
         }
     }
 }
+

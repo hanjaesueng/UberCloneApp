@@ -12,6 +12,7 @@ import UIKit
 let DB_REF = Database.database().reference()
 let REF_USERS = DB_REF.child("users")
 let REF_DRIVER_LOCATIONS = DB_REF.child("driver-locations")
+let REF_TRIPS = DB_REF.child("trips")
 
 struct Service {
     static let shared = Service()
@@ -43,4 +44,15 @@ struct Service {
         }
     }
     
+    func uploadTrip(_ pickupCoordinates : CLLocationCoordinate2D, _ destinationCoordinates : CLLocationCoordinate2D, completion : @escaping(Error?,DatabaseReference ) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        
+        let pickupArray = [pickupCoordinates.latitude,pickupCoordinates.longitude]
+        let destinationArray = [destinationCoordinates.latitude,destinationCoordinates.longitude]
+        
+        let value = ["pickupCoordinates":pickupArray,
+                     "destinationCoordinates":destinationArray]
+        
+        REF_TRIPS.child(uid).updateChildValues(value,withCompletionBlock: completion)
+    }
 }
