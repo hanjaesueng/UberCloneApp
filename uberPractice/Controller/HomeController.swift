@@ -43,7 +43,19 @@ class HomeController : UIViewController {
             if user?.accountType == .passenger {
                 fetchDrivers()
                 configureLocationInputActivationView()
+            } else {
+                observeTrips()
             }
+        }
+    }
+    
+    private var trip : Trip? {
+        didSet {
+            guard let trip = trip else {return}
+            let controller = PickupController(trip: trip)
+            controller.delegate = self
+            controller.modalPresentationStyle = .fullScreen
+            self.present(controller,animated: true,completion: nil)
         }
     }
     
@@ -61,9 +73,16 @@ class HomeController : UIViewController {
         super.viewDidLoad()
         checkIFUserIsLoggedIn()
         enableLocationServices()
-        signOut()
+        
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard let trip = trip else {
+            return
+        }
+        print("DEBUG: Trip State \(trip.state)")
+    }
     //MARK: - Selectors
     
     @objc func actionBtnPressed(){
@@ -117,6 +136,12 @@ class HomeController : UIViewController {
             } 
             
         })
+    }
+    
+    func observeTrips(){
+        Service.shared.observeTrips { trip in
+            self.trip = trip
+        }
     }
     
     func checkIFUserIsLoggedIn() {
@@ -459,6 +484,13 @@ extension HomeController : UITableViewDelegate,UITableViewDataSource {
             self.animateRideActionView(shouldShow: true,destination: placemark)
         }
         
+    }
+}
+// MARK: - PickupViewControllerDelegate
+extension HomeController : PickupControllerDelegate {
+    func didAcceptTrip(_ trip: Trip) {
+        self.trip?.state = .accepted
+        self.dismiss(animated: true, completion: nil)
     }
 }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		107B869C907139FE63219EE0 /* Pods_uberPractice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF8B82D12028F3EEDA337A5D /* Pods_uberPractice.framework */; };
+		387C909C27D1E753002A9F6B /* PickupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387C909B27D1E753002A9F6B /* PickupController.swift */; };
 		38DB177427CECA40009C2B0C /* DriverAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38DB177327CECA40009C2B0C /* DriverAnnotation.swift */; };
 		DB15AA9227D10CC90005D4AB /* Trip.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB15AA9127D10CC90005D4AB /* Trip.swift */; };
 		DB3EB69D27D0833800BF79D6 /* RideActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB3EB69C27D0833800BF79D6 /* RideActionView.swift */; };
@@ -32,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		11B77ABC4960960F95D1C996 /* Pods-uberPractice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uberPractice.release.xcconfig"; path = "Target Support Files/Pods-uberPractice/Pods-uberPractice.release.xcconfig"; sourceTree = "<group>"; };
+		387C909B27D1E753002A9F6B /* PickupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickupController.swift; sourceTree = "<group>"; };
 		38DB177327CECA40009C2B0C /* DriverAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverAnnotation.swift; sourceTree = "<group>"; };
 		7DBBFDE4CFA657B0F1087223 /* Pods-uberPractice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uberPractice.debug.xcconfig"; path = "Target Support Files/Pods-uberPractice/Pods-uberPractice.debug.xcconfig"; sourceTree = "<group>"; };
 		DB15AA9127D10CC90005D4AB /* Trip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				DBD3925327CC98B700BD2EAD /* LoginController.swift */,
 				DBD3925927CCC8A700BD2EAD /* SignUpController.swift */,
 				DBD3925F27CD127700BD2EAD /* HomeController.swift */,
+				387C909B27D1E753002A9F6B /* PickupController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 				DBD3926027CD127700BD2EAD /* HomeController.swift in Sources */,
 				DBD9E92C27CDCAD10091C527 /* LocationInputView.swift in Sources */,
 				DB15AA9227D10CC90005D4AB /* Trip.swift in Sources */,
+				387C909C27D1E753002A9F6B /* PickupController.swift in Sources */,
 				38DB177427CECA40009C2B0C /* DriverAnnotation.swift in Sources */,
 				DBD3925427CC98B700BD2EAD /* LoginController.swift in Sources */,
 				DBD3923D27CC977A00BD2EAD /* SceneDelegate.swift in Sources */,
