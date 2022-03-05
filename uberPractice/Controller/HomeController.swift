@@ -382,6 +382,13 @@ private extension HomeController {
             mapView.removeOverlay(mapView.overlays[0])
         }
     }
+    
+    func centerMapOnUserLocation() {
+        guard let coordinate = locationManager?.location?.coordinate else {return}
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2000, longitudinalMeters: 2000)
+        mapView.setRegion(region, animated: true)
+        
+    }
 }
 
 // MARK: - LocationServices
@@ -523,6 +530,21 @@ extension HomeController : UITableViewDelegate,UITableViewDataSource {
 
 // MARK: - RideActionViewDelegate
 extension HomeController : RideActionViewDelegate {
+    func cancelTrip() {
+        Service.shared.cancelTrip { error, reference in
+            guard error == nil else {
+                print("DEBUG: Error deleting trip..")
+                return
+            }
+        }
+        self.animateRideActionView(shouldShow: false)
+        self.removeAnnotationsAndOverlays()
+        centerMapOnUserLocation()
+        
+        actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        actionBtnConfig = .showMenu
+    }
+    
     func uploadTrip(_ view : RideActionView) {
         guard let pickupCoords = locationManager?.location?.coordinate else {return}
         guard let destinationCoords = view.destination?.coordinate else {return}
@@ -544,7 +566,6 @@ extension HomeController : RideActionViewDelegate {
 // MARK: - PickupViewControllerDelegate
 extension HomeController : PickupControllerDelegate {
     func didAcceptTrip(_ trip: Trip) {
-        
         let anno = MKPointAnnotation()
         anno.coordinate = trip.pickupCoordinate
         mapView.addAnnotation(anno)
@@ -555,6 +576,13 @@ extension HomeController : PickupControllerDelegate {
         generatePolyline(toDestination: mapItem)
         
         mapView.zoomToFit(annotations: mapView.annotations)
+        Service.shared.observeTripCancelled(trip: trip) {
+            self.removeAnnotationsAndOverlays()
+            self.animateRideActionView(shouldShow: false)
+            self.centerMapOnUserLocation()
+            self.presentAlertController(withTitle: "Oops!", message: "The passenger has cancelled this trip")
+            
+        }
 
         self.dismiss(animated: true, completion: {[weak self] in
             guard let self = self else {return}
