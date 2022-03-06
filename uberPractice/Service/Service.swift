@@ -9,53 +9,19 @@ import Firebase
 import CoreLocation
 import GeoFire
 import UIKit
+
+// MARK: - DatabaseReference
 let DB_REF = Database.database().reference()
 let REF_USERS = DB_REF.child("users")
 let REF_DRIVER_LOCATIONS = DB_REF.child("driver-locations")
 let REF_TRIPS = DB_REF.child("trips")
 
-struct Service {
-    static let shared = Service()
+// MARK: - DriverService
+
+struct DriverService {
+    static let shared = DriverService()
     
     private init(){}
-    
-    
-    func fetchUserdata(uid:String,completion : @escaping (User)->Void) {
-        
-        REF_USERS.child(uid).observeSingleEvent(of: .value) { snapshot in
-            guard let data = snapshot.value as? [String:Any] else {return}
-            let user = User.init(uid: uid, dictionary: data)
-            
-            completion(user)
-        }
-    }
-    // observe api 데이터 변경될때마다 호출
-    func fetchDrivers(location : CLLocation,completion : @escaping (User)->Void) {
-        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
-        REF_DRIVER_LOCATIONS.observe(.value) { snapshot in
-            geofire.query(at: location, withRadius: 50).observe(.keyEntered,with: { uid, location in
-                self.fetchUserdata(uid: uid) { user in
-                    var driver = user
-                    driver.location = location
-                    completion(driver)
-                }
-            })
-            
-        }
-    }
-    
-    func uploadTrip(_ pickupCoordinates : CLLocationCoordinate2D, _ destinationCoordinates : CLLocationCoordinate2D, completion : @escaping(Error?,DatabaseReference ) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else {return}
-        
-        let pickupArray = [pickupCoordinates.latitude,pickupCoordinates.longitude]
-        let destinationArray = [destinationCoordinates.latitude,destinationCoordinates.longitude]
-        
-        let value = ["pickupCoordinates":pickupArray,
-                     "destinationCoordinates":destinationArray,
-                     "state":TripState.requested.rawValue] as [String:Any]
-        
-        REF_TRIPS.child(uid).updateChildValues(value,withCompletionBlock: completion)
-    }
     
     func observeTrips(completion : @escaping (Trip) -> Void) {
         REF_TRIPS.observe(.childAdded) { snapshot in
@@ -81,6 +47,58 @@ struct Service {
         REF_TRIPS.child(trip.passengerUid).updateChildValues(values, withCompletionBlock: completion)
     }
     
+    func updateTripState(trip : Trip, state : TripState,completion : @escaping (Error?,DatabaseReference)->Void) {
+        REF_TRIPS.child(trip.passengerUid).child("state").setValue(state.rawValue,withCompletionBlock: completion)
+        
+        // 완료되면 모든 observe를 끊어서 cancel linstening을 취소한다
+        if state == .completed {
+            REF_TRIPS.child(trip.passengerUid).removeAllObservers()
+        }
+    }
+    
+    func updateDriverLocation(location : CLLocation){
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+        geofire.setLocation(location, forKey: uid)
+    }
+    
+}
+
+// MARK: - PassengerService
+
+struct PassengerService{
+    static let shared = PassengerService()
+    
+    private init(){}
+    
+    // observe api 데이터 변경될때마다 호출
+    func fetchDrivers(location : CLLocation,completion : @escaping (User)->Void) {
+        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+        REF_DRIVER_LOCATIONS.observe(.value) { snapshot in
+            geofire.query(at: location, withRadius: 50).observe(.keyEntered,with: { uid, location in
+                Service.shared.fetchUserdata(uid: uid) { user in
+                    var driver = user
+                    driver.location = location
+                    completion(driver)
+                }
+            })
+            
+        }
+    }
+    
+    func uploadTrip(_ pickupCoordinates : CLLocationCoordinate2D, _ destinationCoordinates : CLLocationCoordinate2D, completion : @escaping(Error?,DatabaseReference ) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        
+        let pickupArray = [pickupCoordinates.latitude,pickupCoordinates.longitude]
+        let destinationArray = [destinationCoordinates.latitude,destinationCoordinates.longitude]
+        
+        let value = ["pickupCoordinates":pickupArray,
+                     "destinationCoordinates":destinationArray,
+                     "state":TripState.requested.rawValue] as [String:Any]
+        
+        REF_TRIPS.child(uid).updateChildValues(value,withCompletionBlock: completion)
+    }
+    
     func observeCurrentTrip(completion : @escaping (Trip) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else {return}
         REF_TRIPS.child(uid).observe(.value) { snapshot in
@@ -95,20 +113,26 @@ struct Service {
         guard let uid = Auth.auth().currentUser?.uid else {return}
         REF_TRIPS.child(uid).removeValue(completionBlock: completion)
     }
+}
+// MARK: - Shared Services
+
+struct Service {
+    static let shared = Service()
     
-    func updateDriverLocation(location : CLLocation){
-        guard let uid = Auth.auth().currentUser?.uid else {return}
-        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
-        geofire.setLocation(location, forKey: uid)
-    }
+    private init(){}
     
-    func updateTripState(trip : Trip, state : TripState,completion : @escaping (Error?,DatabaseReference)->Void) {
-        REF_TRIPS.child(trip.passengerUid).child("state").setValue(state.rawValue,withCompletionBlock: completion)
+    
+    func fetchUserdata(uid:String,completion : @escaping (User)->Void) {
         
-        // 완료되면 모든 observe를 끊어서 cancel linstening을 취소한다
-        if state == .completed {
-            REF_TRIPS.child(trip.passengerUid).removeAllObservers()
+        REF_USERS.child(uid).observeSingleEvent(of: .value) { snapshot in
+            guard let data = snapshot.value as? [String:Any] else {return}
+            let user = User.init(uid: uid, dictionary: data)
+            
+            completion(user)
         }
     }
+    
+
+   
     
 }
