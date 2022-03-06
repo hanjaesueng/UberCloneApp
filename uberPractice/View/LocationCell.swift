@@ -14,12 +14,19 @@ class LocationCell: UITableViewCell {
     
     var placemark : MKPlacemark? {
         didSet {
-            titleLable.text = placemark?.name
+            titleLabel.text = placemark?.name
             addressLabel.text = placemark?.address
         }
     }
     
-    private let titleLable : UILabel = {
+    var type : LocationType? {
+        didSet {
+            titleLabel.text = type?.description
+            addressLabel.text = type?.subtitle
+        }
+    }
+    
+    private let titleLabel : UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         
@@ -41,7 +48,7 @@ class LocationCell: UITableViewCell {
         
         selectionStyle = .none
         
-        let stack = UIStackView(arrangedSubviews: [titleLable,addressLabel])
+        let stack = UIStackView(arrangedSubviews: [titleLabel,addressLabel])
         stack.axis = .vertical
         stack.distribution = .fillEqually
         stack.spacing = 4
