@@ -29,7 +29,7 @@ struct Service {
             completion(user)
         }
     }
-    // 데이터 변경될때마다 호출
+    // observe api 데이터 변경될때마다 호출
     func fetchDrivers(location : CLLocation,completion : @escaping (User)->Void) {
         let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
         REF_DRIVER_LOCATIONS.observe(.value) { snapshot in
@@ -68,6 +68,7 @@ struct Service {
     }
     
     func observeTripCancelled(trip : Trip,completion : @escaping ()->Void){
+        
         REF_TRIPS.child(trip.passengerUid).observeSingleEvent(of: .childRemoved) { _ in
             completion()
         }
@@ -90,8 +91,24 @@ struct Service {
         }
     }
     
-    func cancelTrip(completion : @escaping (Error?,DatabaseReference) -> Void){
+    func deleteTrip(completion : @escaping (Error?,DatabaseReference) -> Void){
         guard let uid = Auth.auth().currentUser?.uid else {return}
         REF_TRIPS.child(uid).removeValue(completionBlock: completion)
     }
+    
+    func updateDriverLocation(location : CLLocation){
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+        geofire.setLocation(location, forKey: uid)
+    }
+    
+    func updateTripState(trip : Trip, state : TripState,completion : @escaping (Error?,DatabaseReference)->Void) {
+        REF_TRIPS.child(trip.passengerUid).child("state").setValue(state.rawValue,withCompletionBlock: completion)
+        
+        // 완료되면 모든 observe를 끊어서 cancel linstening을 취소한다
+        if state == .completed {
+            REF_TRIPS.child(trip.passengerUid).removeAllObservers()
+        }
+    }
+    
 }
