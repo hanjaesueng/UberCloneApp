@@ -631,8 +631,7 @@
         [[FChildEventRegistration alloc] initWithRepo:self.repo
                                                handle:handle
                                             callbacks:callbacks
-                                       cancelCallback:cancelBlock];
-    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+                                       cancelCallback:cancelBlock];    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       [self.repo addEventRegistration:registration forQuery:self.querySpec];
     });
 }
