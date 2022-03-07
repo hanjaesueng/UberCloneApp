@@ -52,12 +52,7 @@ class ContainerController : UIViewController {
     func checkIFUserIsLoggedIn() {
         if Auth.auth().currentUser?.uid == nil {
             /// main 에서 실행해야함
-            DispatchQueue.main.async {[weak self] in
-                guard let self = self else {return}
-                let nav = UINavigationController(rootViewController: LoginController())
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav,animated: true,completion: nil)
-            }
+            presentLoginController()
         } else {
             configure()
         }
@@ -74,17 +69,21 @@ class ContainerController : UIViewController {
     func signOut() {
         do {
             try Auth.auth().signOut()
-            DispatchQueue.main.async {[weak self] in
-                guard let self = self else {return}
-                let nav = UINavigationController(rootViewController: LoginController())
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav,animated: true,completion: nil)
-            }
+            presentLoginController()
         } catch {
             print("DEBUG: Error Signing out")
         }
     }
     // MARK: - Helper Functions
+    
+    func presentLoginController() {
+        DispatchQueue.main.async {[weak self] in
+            guard let self = self else {return}
+            let nav = UINavigationController(rootViewController: LoginController())
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav,animated: true,completion: nil)
+        }
+    }
     
     func configure(){
         view.backgroundColor = .backgroundColor

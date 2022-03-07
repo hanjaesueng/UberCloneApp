@@ -19,6 +19,18 @@ class PickupController : UIViewController {
     
     let trip : Trip
     
+    private lazy var circularProgressView : CircularProgressView = {
+        let frame = CGRect(x: 0, y: 0, width: 360, height: 360)
+        let cp = CircularProgressView(frame: frame)
+        
+        cp.addSubview(mapView)
+        mapView.setDimensions(height: 260, width: 260)
+        mapView.layer.cornerRadius = 260/2
+        mapView.centerX(in: cp)
+        mapView.centerY(in: cp,constant: 32)
+        return cp
+    }()
+    
     weak var delegate : PickupControllerDelegate?
     
     private let cancelButton : UIButton = {
@@ -64,6 +76,7 @@ class PickupController : UIViewController {
         
         configureUI()
         configureMapView()
+        self.perform(#selector(animateProgress), with: nil, afterDelay: 0.5)
     }
     
     // 해당 뷰컨에서 상단에 status bar 를 없애준다
@@ -84,6 +97,17 @@ class PickupController : UIViewController {
         }
     }
     
+    @objc func animateProgress(){
+        circularProgressView.animatePulsatingLayer()
+        circularProgressView.setProgressWithAnimation(duration: 5, value: 0) {[weak self] in
+            guard let self = self else {return}
+            
+            DriverService.shared.updateTripState(trip: self.trip, state: .denied) { err, ref in
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+    
     //MARK: - Helper Functions
     
     func configureMapView(){
@@ -97,15 +121,15 @@ class PickupController : UIViewController {
         view.backgroundColor = .backgroundColor
         view.addSubview(cancelButton)
         cancelButton.anchor(top:view.safeAreaLayoutGuide.topAnchor,left:view.leftAnchor,paddingLeft:16)
-        view.addSubview(mapView)
-        mapView.setDimensions(height: 270, width: 270)
-        mapView.layer.cornerRadius = 270/2
-        mapView.centerX(in: view)
-        mapView.centerY(in: view,constant: -200)
+        view.addSubview(circularProgressView)
+        circularProgressView.setDimensions(height: 360, width: 360)
+        circularProgressView.anchor(top:view.safeAreaLayoutGuide.topAnchor,paddingTop: 32)
+        circularProgressView.centerX(in: view)
+         
         
         view.addSubview(pickupLabel)
         pickupLabel.centerX(in: view)
-        pickupLabel.anchor(top:mapView.bottomAnchor,paddingTop: 16)
+        pickupLabel.anchor(top:circularProgressView.bottomAnchor,paddingTop: 32)
         
         view.addSubview(acceptTripBtn)
         acceptTripBtn.anchor(top:pickupLabel.bottomAnchor,left:view.leftAnchor,right: view.rightAnchor,paddingTop: 16,paddingLeft: 32,paddingRight: 32,height: 50)
