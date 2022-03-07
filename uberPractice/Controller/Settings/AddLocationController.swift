@@ -10,14 +10,23 @@ import MapKit
 
 private let reuseIdentifier = "Cell"
 
+protocol AddLocationControllerDelegate : AnyObject {
+    func updateLocation(locationString : String,type : LocationType)
+}
+
 class AddLocationController : UITableViewController {
     //MARK: - Properties
     
     private let searchBar = UISearchBar()
     private let searchCompleter = MKLocalSearchCompleter()
-    private var searchResults = [MKLocalSearchCompletion]()
+    private var searchResults = [MKLocalSearchCompletion]() {
+        didSet{
+            tableView.reloadData()
+        }
+    }
     private let type : LocationType
     private let location : CLLocation
+    weak var delegate : AddLocationControllerDelegate?
     
     //MARK: - Lifecycle
     init(type:LocationType,location : CLLocation){
@@ -65,16 +74,33 @@ extension AddLocationController {
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: reuseIdentifier)
+        
+        let result = searchResults[indexPath.row]
+        cell.textLabel?.text = result.title
+        cell.detailTextLabel?.text = result.subtitle
         return cell
+    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let result = searchResults[indexPath.row]
+        let title = result.title
+        let subTitle = result.subtitle
+        let locationString = title + " " + subTitle
+        let trimmedLocation = locationString.replacingOccurrences(of: ", United States", with: "")
+        delegate?.updateLocation(locationString: trimmedLocation, type: type)
     }
 }
 
 //MARK: - UISearchBarDelegate
 extension AddLocationController : UISearchBarDelegate {
-    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchCompleter.queryFragment = searchText
+    }
 }
 
 //MARK: - MKLocalSearchCompleterDelegate
 extension AddLocationController : MKLocalSearchCompleterDelegate {
-    
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        searchResults = completer.results
+        
+    }
 }

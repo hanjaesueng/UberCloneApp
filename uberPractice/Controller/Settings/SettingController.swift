@@ -9,6 +9,10 @@ import UIKit
 
 private let resuseIdentifier = "LocationCell"
 
+protocol SettingControllerDelegate : AnyObject {
+    func updateUser(_ controller : SettingController)
+}
+
 enum LocationType: Int,CaseIterable,CustomStringConvertible {
     case home
     case work
@@ -31,7 +35,7 @@ class SettingController : UITableViewController {
     
     //MARK: - Properties
     
-    private let user : User
+    var user : User
     
     private let locationManager = LocationHandler.shared.locationManager
     
@@ -40,6 +44,8 @@ class SettingController : UITableViewController {
         let view = UserInfoHeader(user: user, frame: frame)
         return view
     }()
+    
+    weak var delegate : SettingControllerDelegate?
     
     //MARK: - Lifecycle
     
@@ -64,6 +70,15 @@ class SettingController : UITableViewController {
     }
     
     //MARK: - Helper Functions
+    
+    func locationText(forType type : LocationType) -> String{
+        switch type {
+        case .home:
+            return user.homeLocation ?? type.subtitle
+        case .work:
+            return user.workLocation ?? type.subtitle
+        }
+    }
     
     func configureTableView() {
         tableView.rowHeight = 60
@@ -112,7 +127,8 @@ extension SettingController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: resuseIdentifier, for: indexPath) as! LocationCell
         guard let type = LocationType(rawValue: indexPath.row) else {return cell}
-        cell.type = type
+        cell.titleLabel.text = type.description
+        cell.addressLabel.text = locationText(forType: type)
         return cell
     }
     
@@ -120,8 +136,29 @@ extension SettingController {
         guard let type = LocationType(rawValue: indexPath.row) else {return}
         guard let location = locationManager?.location else {return}
         let controller = AddLocationController(type: type, location: location)
+        controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav,animated: true)
+    }
+}
+
+//MARK: - AddLocationControllerDelegate
+extension SettingController : AddLocationControllerDelegate {
+    func updateLocation(locationString: String, type: LocationType) {
+        PassengerService.shared.saveLocation(locationString: locationString, type: type) {[weak self] err, ref in
+            guard let self = self else {return}
+            self.dismiss(animated: true, completion: nil)
+            
+            switch type {
+            case .home:
+                self.user.homeLocation = locationString
+            case .work:
+                self.user.workLocation = locationString
+            }
+            
+            self.delegate?.updateUser(self)
+            self.tableView.reloadData()
+        }
     }
 }

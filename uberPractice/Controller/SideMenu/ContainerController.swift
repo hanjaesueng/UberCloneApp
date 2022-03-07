@@ -147,6 +147,13 @@ class ContainerController : UIViewController {
     }
 }
 
+//MARK: - SettingControllerDelegate
+extension ContainerController : SettingControllerDelegate {
+    func updateUser(_ controller: SettingController) {
+        self.user = controller.user
+    }
+}
+
 //MARK: - HomeControllerDelegate
 
 extension ContainerController : HomeControllerDelegate {
@@ -168,6 +175,7 @@ extension ContainerController : MenuControllerDelegate {
             case .settings:
                 guard let user = self.user else {return}
                 let controller = SettingController(user: user)
+                controller.delegate = self
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen
                 self.present(nav,animated: true,completion: nil)
