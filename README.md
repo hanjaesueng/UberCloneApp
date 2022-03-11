@@ -1,5 +1,5 @@
 # UberCloneApp
-UberCloneApp by udemy
+UberCloneApp
 
 - firebase login
 - Mapkit
